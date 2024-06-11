@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-            <link rel="icon" href="voidicon.png" type="image/png">
+
     <style>
         p {
             font-family: 'Space Mono', monospace;
@@ -44,10 +44,10 @@
         <p>(applies to every stage)</p>
         <p>use it wisely</p>
         <p>arrows or wasd to move</p>
-        <p>refresh when dead</p>
+        <p>when dead click red text to revive</p>
         <p>you may close.</p>
       </div>
-      
+
       <script>
         function showPopup() {
           var popup = document.getElementById('popup');
@@ -105,7 +105,7 @@
         <source src="baby.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
-    <div id="message">dead.</div>
+    <div id="message" style="cursor: pointer;" onclick="location.reload();">dead.</div>
     <div id="completeMessage">complete.</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
