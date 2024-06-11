@@ -9,16 +9,16 @@
         h2 {
             font-family: 'Space Mono', monospace;
         }
-        .fake-popup {
+         .fake-popup {
           position: absolute;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
           width: 200px;
           padding: 10px;
-          background-color: rgb(20, 20, 20);
-          color: white;
-          border: 7px solid rgb(33, 0, 0);
+          background-color: rgb(50, 50, 50);
+          color: rgb(200, 200, 200);
+          border: 7px solid rgb(80, 0, 0);
           border-radius: 5px;
           text-align: center;
           display: none;
@@ -28,7 +28,7 @@
           top: 5px;
           right: 5px;
           cursor: pointer;
-          color: rgb(255, 0, 0);
+          color: rgb(255, 100, 100);
         }
       </style>
       </head>
@@ -86,7 +86,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 48px;
-            color: red;
+            color: rgb(255, 50, 50);
         }
         #completeMessage {
             display: none;
@@ -95,7 +95,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 48px;
-            color: blue;
+            color: rgb(100, 100, 255);
         }
     </style>
 </head>
@@ -123,14 +123,14 @@
         scene.add(light);
 
         const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        const playerMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        const playerMaterial = new THREE.MeshPhongMaterial({ color: 0xbbbbbb });
         const player = new THREE.Mesh(playerGeometry, playerMaterial);
-        scene.add(player); 
+        scene.add(player);
 
         const targetGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        const targetMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        const targetMaterial = new THREE.MeshPhongMaterial({ color: 0x66ff66 });
         const target = new THREE.Mesh(targetGeometry, targetMaterial);
-        target.position.set(0, 0.25, -2.5); 
+        target.position.set(0, 0.25, -2.5);
         scene.add(target);
 
         let spikes = [];
@@ -140,7 +140,7 @@
 
         function isValidSpikePosition(position) {
             const distanceToPlayer = player.position.distanceTo(position);
-            return distanceToPlayer > 1.0; 
+            return distanceToPlayer > 1.0;
         }
 
         let invincible = false;
@@ -152,21 +152,21 @@
 
             const spikeCount = 1 + (level - 1) * 1;
             for (let i = 0; i < spikeCount; i++) {
-    let spikePosition;
-    do {
-        spikePosition = new THREE.Vector3(Math.random() * 6 - 3, 0.5, Math.random() * 6 - 3);
-    } while (!isValidSpikePosition(spikePosition));
+                let spikePosition;
+                do {
+                    spikePosition = new THREE.Vector3(Math.random() * 6 - 3, 0.5, Math.random() * 6 - 3);
+                } while (!isValidSpikePosition(spikePosition));
 
-    const spikeGeometry = new THREE.ConeGeometry(0.2, 1, 32);
-    const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-    const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
-    spike.position.copy(spikePosition);
-    spike.rotation.x = 0; 
-    spikes.push(spike);
-    scene.add(spike);
-}
+                const spikeGeometry = new THREE.ConeGeometry(0.2, 1, 32);
+                const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xc82a0e});
+                const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+                spike.position.copy(spikePosition);
+                spike.rotation.x = 0; 
+                spikes.push(spike);
+                scene.add(spike);
+            }
 
-
+            
             player.position.set(Math.random() * 6 - 3, 0.25, Math.random() * 6 - 3);
 
             invincible = true;
@@ -178,51 +178,51 @@
         resetLevel();
 
         const speed = 0.05;
-               const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false };
+        const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false };
 
-document.addEventListener('keydown', (e) => keys[e.code] = true);
-document.addEventListener('keyup', (e) => keys[e.code] = false);
+        document.addEventListener('keydown', (e) => keys[e.code] = true);
+        document.addEventListener('keyup', (e) => keys[e.code] = false);
 
-function movePlayer() {
-    if (keys.ArrowUp || keys.KeyW) player.position.z -= speed;
-    if (keys.ArrowDown || keys.KeyS) player.position.z += speed;
-    if (keys.ArrowLeft || keys.KeyA) player.position.x -= speed;
-    if (keys.ArrowRight || keys.KeyD) player.position.x += speed;
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-
-    movePlayer();
-
-    spikes.forEach(spike => {
-        const distance = player.position.distanceTo(spike.position);
-        if (distance < 0.5 &&!invincible) {
-            document.getElementById('message').style.display = 'block';
-            renderer.domElement.style.display = 'none';
+        function movePlayer() {
+            if (keys.ArrowUp || keys.KeyW) player.position.z -= speed;
+            if (keys.ArrowDown || keys.KeyS) player.position.z += speed;
+            if (keys.ArrowLeft || keys.KeyA) player.position.x -= speed;
+            if (keys.ArrowRight || keys.KeyD) player.position.x += speed;
         }
-    });
 
-    if (player.position.distanceTo(target.position) < 0.5) {
-        level++;
-        if (level > maxLevel) {
-            document.getElementById('completeMessage').style.display = 'block';
-            renderer.domElement.style.display = 'none';
-        } else {
-            resetLevel();
+        function animate() {
+            requestAnimationFrame(animate);
+
+            movePlayer();
+
+            spikes.forEach(spike => {
+                const distance = player.position.distanceTo(spike.position);
+                if (distance < 0.5 && !invincible) {
+                    document.getElementById('message').style.display = 'block';
+                    renderer.domElement.style.display = 'none';
+                }
+            });
+
+            if (player.position.distanceTo(target.position) < 0.5) {
+                level++;
+                if (level > maxLevel) {
+                    document.getElementById('completeMessage').style.display = 'block';
+                    renderer.domElement.style.display = 'none';
+                } else {
+                    resetLevel();
+                }
+            }
+
+            renderer.render(scene, camera);
         }
-    }
 
-    renderer.render(scene, camera);
-}
+        animate();
 
-animate();
-
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-</script>
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
