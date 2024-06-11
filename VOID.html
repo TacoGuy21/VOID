@@ -9,7 +9,6 @@
         h2 {
             font-family: 'Space Mono', monospace;
         }
-        /* Styling for the fake popup */
         .fake-popup {
           position: absolute;
           top: 50%;
@@ -24,7 +23,6 @@
           text-align: center;
           display: none;
         }
-        /* Close button */
         .close-btn {
           position: absolute;
           top: 5px;
@@ -50,12 +48,10 @@
       </div>
       
       <script>
-        // Function to show the fake popup
         function showPopup() {
           var popup = document.getElementById('popup');
           var bodyRect = document.body.getBoundingClientRect();
           var popupRect = popup.getBoundingClientRect();
-          // Calculate random position near the middle
           var leftPos = bodyRect.width / 2 + (Math.random() - 0.5) * (bodyRect.width / 4);
           var topPos = bodyRect.height / 2 + (Math.random() - 0.5) * (bodyRect.height / 4);
           popup.style.left = leftPos + 'px';
@@ -63,13 +59,11 @@
           popup.style.display = 'block';
         }
       
-        // Function to hide the fake popup
         function hidePopup() {
           var popup = document.getElementById('popup');
           popup.style.display = 'none';
         }
       
-        // Call showPopup when the page loads
         window.onload = showPopup;
       </script>
 
@@ -114,77 +108,65 @@
     <div id="completeMessage">complete.</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Setup scene
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
 
-        // Setup camera
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 1, 5);
 
-        // Setup renderer
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Add light
         const light = new THREE.DirectionalLight(0xffffff, 1);
         light.position.set(0, 1, 1).normalize();
         scene.add(light);
 
-        // Player cube
         const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
         const playerMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
         const player = new THREE.Mesh(playerGeometry, playerMaterial);
-        scene.add(player); // Player position will be set later
+        scene.add(player); 
 
-        // Target for progressing levels
         const targetGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
         const targetMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
         const target = new THREE.Mesh(targetGeometry, targetMaterial);
-        target.position.set(0, 0.25, -2.5); // Close to the screen, behind the player
+        target.position.set(0, 0.25, -2.5); 
         scene.add(target);
 
-        // Spikes array
         let spikes = [];
 
-        // Level and spike count
         let level = 1;
         const maxLevel = 30;
 
-        // Function to check if a spike position is valid
         function isValidSpikePosition(position) {
-            // Check the distance between the position and the player
             const distanceToPlayer = player.position.distanceTo(position);
-            return distanceToPlayer > 1.0; // Adjust the minimum distance as needed
+            return distanceToPlayer > 1.0; 
         }
 
         let invincible = false;
         let invincibleTimeout = null;
 
         function resetLevel() {
-            // Remove existing spikes
             spikes.forEach(spike => scene.remove(spike));
             spikes = [];
 
-            // Add new spikes for the current level
             const spikeCount = 1 + (level - 1) * 1;
             for (let i = 0; i < spikeCount; i++) {
-                let spikePosition;
-                do {
-                    spikePosition = new THREE.Vector3(Math.random() * 6 - 3, 0.5, Math.random() * 6 - 3);
-                } while (!isValidSpikePosition(spikePosition));
+    let spikePosition;
+    do {
+        spikePosition = new THREE.Vector3(Math.random() * 6 - 3, 0.5, Math.random() * 6 - 3);
+    } while (!isValidSpikePosition(spikePosition));
 
-                const spikeGeometry = new THREE.ConeGeometry(0.2, 1, 32);
-                const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-                const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
-                spike.position.copy(spikePosition);
-                spike.rotation.x = Math.PI / 2;
-                spikes.push(spike);
-                scene.add(spike);
-            }
+    const spikeGeometry = new THREE.ConeGeometry(0.2, 1, 32);
+    const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+    spike.position.copy(spikePosition);
+    spike.rotation.x = 0; 
+    spikes.push(spike);
+    scene.add(spike);
+}
 
-            // Randomly position the player within a defined area
+
             player.position.set(Math.random() * 6 - 3, 0.25, Math.random() * 6 - 3);
 
             invincible = true;
@@ -193,10 +175,8 @@
             }, 500);
         }
 
-        // Initialize the first level
         resetLevel();
 
-        // Player movement
         const speed = 0.05;
                const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false };
 
@@ -215,7 +195,6 @@ function animate() {
 
     movePlayer();
 
-    // Collision detection with spikes
     spikes.forEach(spike => {
         const distance = player.position.distanceTo(spike.position);
         if (distance < 0.5 &&!invincible) {
@@ -224,7 +203,6 @@ function animate() {
         }
     });
 
-    // Check if player reaches the target to progress to the next level
     if (player.position.distanceTo(target.position) < 0.5) {
         level++;
         if (level > maxLevel) {
