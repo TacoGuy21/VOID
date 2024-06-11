@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        p {
+            font-family: 'Space Mono', monospace;
+        }
+
+        h2 {
+            font-family: 'Space Mono', monospace;
+        }
+        /* Styling for the fake popup */
+        .fake-popup {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 200px;
+          padding: 10px;
+          background-color: rgb(20, 20, 20);
+          color: white;
+          border: 7px solid rgb(33, 0, 0);
+          border-radius: 5px;
+          text-align: center;
+          display: none;
+        }
+        /* Close button */
+        .close-btn {
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          cursor: pointer;
+          color: rgb(255, 0, 0);
+        }
+      </style>
+      </head>
+      <body>
+      
+      <div class="fake-popup" id="popup">
+        <span class="close-btn" onclick="hidePopup()">X</span>
+        <h2>Important Message</h2>
+        <p>consume green. </p>
+        <p>avoid spikes.</p>
+        <p>you have 0.5 seconds of invincibility</p>
+        <p>(applies to every stage)</p>
+        <p>use it wisely</p>
+        <p>arrows or wasd to move</p>
+        <p>refresh when dead</p>
+        <p>you may close.</p>
+      </div>
+      
+      <script>
+        // Function to show the fake popup
+        function showPopup() {
+          var popup = document.getElementById('popup');
+          var bodyRect = document.body.getBoundingClientRect();
+          var popupRect = popup.getBoundingClientRect();
+          // Calculate random position near the middle
+          var leftPos = bodyRect.width / 2 + (Math.random() - 0.5) * (bodyRect.width / 4);
+          var topPos = bodyRect.height / 2 + (Math.random() - 0.5) * (bodyRect.height / 4);
+          popup.style.left = leftPos + 'px';
+          popup.style.top = topPos + 'px';
+          popup.style.display = 'block';
+        }
+      
+        // Function to hide the fake popup
+        function hidePopup() {
+          var popup = document.getElementById('popup');
+          popup.style.display = 'none';
+        }
+      
+        // Call showPopup when the page loads
+        window.onload = showPopup;
+      </script>
+
+  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: monospace, serif;
+            background: #000000;
+            color: #fff;
+        }
+        #message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: red;
+        }
+        #completeMessage {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <audio id="babyAudio" autoplay loop>
+        <source src="baby.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div id="message">dead.</div>
+    <div id="completeMessage">complete.</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Setup scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        // Setup camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1, 5);
+
+        // Setup renderer
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add light
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(0, 1, 1).normalize();
+        scene.add(light);
+
+        // Player cube
+        const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+        const playerMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        const player = new THREE.Mesh(playerGeometry, playerMaterial);
+        scene.add(player); // Player position will be set later
+
+        // Target for progressing levels
+        const targetGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+        const targetMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        const target = new THREE.Mesh(targetGeometry, targetMaterial);
+        target.position.set(0, 0.25, -2.5); // Close to the screen, behind the player
+        scene.add(target);
+
+        // Spikes array
+        let spikes = [];
+
+        // Level and spike count
+        let level = 1;
+        const maxLevel = 30;
+
+        // Function to check if a spike position is valid
+        function isValidSpikePosition(position) {
+            // Check the distance between the position and the player
+            const distanceToPlayer = player.position.distanceTo(position);
+            return distanceToPlayer > 1.0; // Adjust the minimum distance as needed
+        }
+
+        let invincible = false;
+        let invincibleTimeout = null;
+
+        function resetLevel() {
+            // Remove existing spikes
+            spikes.forEach(spike => scene.remove(spike));
+            spikes = [];
+
+            // Add new spikes for the current level
+            const spikeCount = 1 + (level - 1) * 1;
+            for (let i = 0; i < spikeCount; i++) {
+                let spikePosition;
+                do {
+                    spikePosition = new THREE.Vector3(Math.random() * 6 - 3, 0.5, Math.random() * 6 - 3);
+                } while (!isValidSpikePosition(spikePosition));
+
+                const spikeGeometry = new THREE.ConeGeometry(0.2, 1, 32);
+                const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+                const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+                spike.position.copy(spikePosition);
+                spike.rotation.x = Math.PI / 2;
+                spikes.push(spike);
+                scene.add(spike);
+            }
+
+            // Randomly position the player within a defined area
+            player.position.set(Math.random() * 6 - 3, 0.25, Math.random() * 6 - 3);
+
+            invincible = true;
+            invincibleTimeout = setTimeout(() => {
+                invincible = false;
+            }, 500);
+        }
+
+        // Initialize the first level
+        resetLevel();
+
+        // Player movement
+        const speed = 0.05;
+               const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false };
+
+document.addEventListener('keydown', (e) => keys[e.code] = true);
+document.addEventListener('keyup', (e) => keys[e.code] = false);
+
+function movePlayer() {
+    if (keys.ArrowUp || keys.KeyW) player.position.z -= speed;
+    if (keys.ArrowDown || keys.KeyS) player.position.z += speed;
+    if (keys.ArrowLeft || keys.KeyA) player.position.x -= speed;
+    if (keys.ArrowRight || keys.KeyD) player.position.x += speed;
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    movePlayer();
+
+    // Collision detection with spikes
+    spikes.forEach(spike => {
+        const distance = player.position.distanceTo(spike.position);
+        if (distance < 0.5 &&!invincible) {
+            document.getElementById('message').style.display = 'block';
+            renderer.domElement.style.display = 'none';
+        }
+    });
+
+    // Check if player reaches the target to progress to the next level
+    if (player.position.distanceTo(target.position) < 0.5) {
+        level++;
+        if (level > maxLevel) {
+            document.getElementById('completeMessage').style.display = 'block';
+            renderer.domElement.style.display = 'none';
+        } else {
+            resetLevel();
+        }
+    }
+
+    renderer.render(scene, camera);
+}
+
+animate();
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>

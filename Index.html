@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+
+h2 {
+    font-family: 'Space Mono', monospace;
+        color: white;
+    }
+
+    p {
+    font-family: 'Space Mono', monospace;
+        color: white;
+    }
+
+
+.space-background {
+    background-color: black;* Retro space background */
+    background-size: cover;
+    height: 100%;
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.void-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 3em;
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+button {
+    border-width: 3px grey;
+    font-family: 'Space Mono', monospace;
+    font-size: 1em;
+    padding: 10px 20px;
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #ccc;
+}
+
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID | Main Menu</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <audio id="babyAudio" autoplay loop>
+        <source src="baby.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="space-background">
+        <div class="overlay">
+            <h1 class="void-text">VOID</h1>
+            <h2>A 3d experience</h2>
+            <button onclick="location.href = '/VOID.html';" id="myButton" class="float-left submit-button" >BEGIN</button>
+         
+        </div>
+    </div>
+</body>
+</html>
