@@ -1,2 +1,2 @@
 # VOID
-You are trapped in a pure black abyssbwith nothing besides a green gateway and several sharp spikes. Will you escape?
+You are trapped in a pure black abyss housing nothing but a green gateway and several sharp spikes. Will you escape?
