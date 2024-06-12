@@ -10,39 +10,7 @@
          
     </script>
 
-         <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let inputBuffer = '';
-            const targetKeyword = 'gay';
-            const audioElement = document.getElementById('boys-audio');
-
-            function playAudio() {
-                document.querySelectorAll('audio').forEach(audio => {
-                    if (audio !== audioElement) {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    }
-                });
-
-                audioElement.play();
-                audioElement.loop = true;
-            }
-
-            document.addEventListener('keydown', (event) => {
-                inputBuffer += event.key.toLowerCase();
-
-                if (inputBuffer.length > targetKeyword.length) {
-                    inputBuffer = inputBuffer.slice(-targetKeyword.length);
-                }
-
-                if (inputBuffer === targetKeyword) {
-                    playAudio();
-                }
-            });
-        });
-    </script>
-             <audio id="boys-audio" src="boys.mp3" loop></audio>
-
+        
         <meta property="og:title" content="VOID">
 <meta property="og:description" content="A 3D web experience by Tacoguy21">
 <meta property="og:image" content="Spaceship.png">
