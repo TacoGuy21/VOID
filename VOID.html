@@ -231,7 +231,7 @@
                 } while (!isValidSpikePosition(spikePosition));
 
                 const spikeGeometry = new THREE.ConeGeometry(0.2, 1, 32);
-                const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xc82a0e});
+                const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xAE4305});
                 const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
                 spike.position.copy(spikePosition);
                 spike.rotation.x = 0; 
