@@ -141,10 +141,7 @@
     </style>
 </head>
 <body>
-    <audio id="babyAudio" autoplay loop>
-        <source src="baby.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+   
     <div id="message" style="cursor: pointer;" onclick="location.reload();">failed.</div>
     <div id="completeMessage">complete.</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -218,7 +215,7 @@
 
         resetLevel();
 
-        const speed = 0.05;
+        const speed = 0.10;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false };
 
         document.addEventListener('keydown', (e) => keys[e.code] = true);
