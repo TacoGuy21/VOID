@@ -1,45 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-         <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let inputBuffer = '';
-            const targetKeyword = 'gay';
-            const audioElement = document.getElementById('boys-audio');
-
-            function playAudio() {
-                document.querySelectorAll('audio').forEach(audio => {
-                    if (audio !== audioElement) {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    }
-                });
-
-                audioElement.play();
-                audioElement.loop = true;
-            }
-
-            document.addEventListener('keydown', (event) => {
-                inputBuffer += event.key.toLowerCase();
-
-                if (inputBuffer.length > targetKeyword.length) {
-                    inputBuffer = inputBuffer.slice(-targetKeyword.length);
-                }
-
-                if (inputBuffer === targetKeyword) {
-                    playAudio();
-                }
-            });
-        });
+  <audio src="baby.mp3" autoplay loop></audio>
+                 <link rel="icon" href="voidicon.png" type="image/png">
+             <audio id="babyAudio" autoplay loop>
+        <source src="baby.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+         
     </script>
-             <audio id="boys-audio" src="boys.mp3" loop></audio>
 
+        
         <meta property="og:title" content="VOID">
 <meta property="og:description" content="A 3D web experience by Tacoguy21">
 <meta property="og:image" content="Spaceship.png">
 <meta property="og:url" content="https://tacovoidgame.netlify.app/">
 
-        <link rel="icon" href="voidicon.png" type="image/png">
 
     <style>
         body, html {
@@ -105,10 +81,7 @@ button:hover {
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <audio id="babyAudio" autoplay loop>
-        <source src="baby.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+
     <div class="space-background">
         <div class="overlay">
             <h1 class="void-text">VOID</h1>

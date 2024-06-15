@@ -1,102 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let inputBuffer = '';
-            const targetKeyword = 'gay';
-            const audioElement = document.getElementById('boys-audio');
+  <audio src="baby.mp3" autoplay loop></audio>
 
-            function playAudio() {
-                 document.querySelectorAll('audio').forEach(audio => {
-                    if (audio !== audioElement) {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    }
-                });
-
-                audioElement.play();
-                audioElement.loop = true;
-            }
-
-            document.addEventListener('keydown', (event) => {
-                inputBuffer += event.key.toLowerCase();
-
-                if (inputBuffer.length > targetKeyword.length) {
-                    inputBuffer = inputBuffer.slice(-targetKeyword.length);
-                }
-
-                if (inputBuffer === targetKeyword) {
-                    playAudio();
-                }
-            });
-        });
-    </script>
-             <audio id="boys-audio" src="boys.mp3" loop></audio>
-
-         <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let inputBuffer = '';
-            const targetKeyword = 'gay';
-            const audioElement = document.getElementById('boys-audio');
-
-            function playAudio() {
-                document.querySelectorAll('audio').forEach(audio => {
-                    if (audio !== audioElement) {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    }
-                });
-
-                audioElement.play();
-                audioElement.loop = true;
-            }
-
-            document.addEventListener('keydown', (event) => {
-                inputBuffer += event.key.toLowerCase();
-
-                if (inputBuffer.length > targetKeyword.length) {
-                    inputBuffer = inputBuffer.slice(-targetKeyword.length);
-                }
-
-                if (inputBuffer === targetKeyword) {
-                    playAudio();
-                }
-            });
-        });
-    </script>
-             <audio id="boys-audio" src="boys.mp3" loop></audio>
- <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let inputBuffer = '';
-            const targetKeyword = 'gay';
-            const audioElement = document.getElementById('boys-audio');
-
-            function playAudio() {
-                 document.querySelectorAll('audio').forEach(audio => {
-                    if (audio !== audioElement) {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    }
-                });
-
-                audioElement.play();
-                audioElement.loop = true;
-            }
-
-            document.addEventListener('keydown', (event) => {
-                inputBuffer += event.key.toLowerCase();
-
-                if (inputBuffer.length > targetKeyword.length) {
-                    inputBuffer = inputBuffer.slice(-targetKeyword.length);
-                }
-
-                if (inputBuffer === targetKeyword) {
-                    playAudio();
-                }
-            });
-        });
-    </script>
              <audio id="boys-audio" src="boys.mp3" loop></audio>
 
          <script>
@@ -293,7 +199,7 @@
                 } while (!isValidSpikePosition(spikePosition));
 
                 const spikeGeometry = new THREE.ConeGeometry(0.2, 1, 32);
-                const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xc82a0e});
+                const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xAE4305});
                 const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
                 spike.position.copy(spikePosition);
                 spike.rotation.x = 0; 
