@@ -4,7 +4,7 @@ You are trapped in a pure black abyss housing nothing but a green gateway and se
 Remember to think outside the box.
 
 ## CREDITS
-Windowshopping - Soundtrack
+Sewerslvt - Soundtrack
 
 Tacoguy21 - Game Design
 
