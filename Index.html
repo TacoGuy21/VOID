@@ -1,92 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <audio src="baby.mp3" autoplay loop></audio>
-                 <link rel="icon" href="voidicon.png" type="image/png">
-        <source src="baby.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-         
-    </script>
-
-        
-        <meta property="og:title" content="VOID">
-<meta property="og:description" content="A 3D web experience by Tacoguy21">
-<meta property="og:image" content="Spaceship.png">
-<meta property="og:url" content="https://tacovoidgame.netlify.app/">
-
-
+    <link rel="icon" href="voidicon.png" type="image/png">
     <style>
-        body, html {
+body, html {
     margin: 0;
     padding: 0;
     height: 100%;
+    font-family: 'Space Mono', monospace;
+    color: white;
+    background-color: black;
 }
 
-
-h2 {
-    font-family: 'Space Mono', monospace;
-        color: white;
-    }
-
-    p {
-    font-family: 'Space Mono', monospace;
-        color: white;
-    }
-
+h1, h2, p {
+    margin: 0;
+}
 
 .space-background {
-    background-color: black;* Retro space background */
+    background: url('your-space-background-image.jpg') no-repeat center center fixed; /* Add your retro space background image */
     background-size: cover;
     height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
 }
 
 .overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     text-align: center;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    padding: 20px;
+    border-radius: 10px;
 }
 
 .void-text {
-    font-family: 'Space Mono', monospace;
-    font-size: 3em;
-    color: #fff;
+    font-size: 4em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-button {
-    border-width: 3px grey;
-    font-family: 'Space Mono', monospace;
-    font-size: 1em;
-    padding: 10px 20px;
-    background-color: #fff;
-    border: none;
+h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.begin-button {
+    font-size: 1.2em;
+    padding: 15px 30px;
+    background-color: #1a1a1a;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-button:hover {
-    background-color: #ccc;
+.begin-button:hover {
+    background-color: rgb(43, 42, 42);
+    color: #ffffff;
 }
 
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="VOID">
+    <meta property="og:description" content="A 3D web experience by Tacoguy21">
+    <meta property="og:image" content="Spaceship.png">
+    <meta property="og:url" content="https://tacovoidgame.netlify.app/">
     <title>VOID | Main Menu</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="icon" href="voidicon.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
+    <audio src="baby.mp3" autoplay loop></audio>
     <div class="space-background">
         <div class="overlay">
             <h1 class="void-text">VOID</h1>
-            <h2>A 3d web experience</h2>
-            <button onclick="location.href = '/VOID.html';" id="myButton" class="float-left submit-button" >BEGIN</button>
-         
+            <h2>A 3D web experience</h2>
+            <button onclick="location.href='/VOID.html';" id="myButton" class="begin-button">BEGIN</button>
         </div>
     </div>
 </body>

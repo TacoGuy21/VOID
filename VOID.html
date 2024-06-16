@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+      <link rel="icon" href="voidicon.png" type="image/png">
   <audio src="baby.mp3" autoplay loop></audio>
-
              <audio id="boys-audio" src="boys.mp3" loop></audio>
 
          <script>
@@ -141,10 +141,7 @@
     </style>
 </head>
 <body>
-    <audio id="babyAudio" autoplay loop>
-        <source src="baby.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+   
     <div id="message" style="cursor: pointer;" onclick="location.reload();">failed.</div>
     <div id="completeMessage">complete.</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -218,7 +215,7 @@
 
         resetLevel();
 
-        const speed = 0.05;
+        const speed = 0.07;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false };
 
         document.addEventListener('keydown', (e) => keys[e.code] = true);
