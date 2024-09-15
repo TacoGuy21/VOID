@@ -4,7 +4,7 @@ An 30 stage puzzle game where you are trapped in a pure black abyss housing noth
 Remember to think outside the box.
 
 ## CREDITS
-Sewerslvt - Soundtrack
+Sewerslvt, Windowshopping - Soundtrack
 
 Tacoguy21 - Game Design
 
