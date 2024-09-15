@@ -78,14 +78,14 @@
       <div class="fake-popup" id="popup">
         <span class="close-btn" onclick="hidePopup()">X</span>
         <h2>Important Message</h2>
-        <p>consume green. </p>
-        <p>avoid spikes.</p>
-        <p>you have 0.5 seconds of invincibility</p>
-        <p>(applies to every stage)</p>
-        <p>use it wisely</p>
-        <p>arrows or wasd to move</p>
-        <p>when dead click red text to revive</p>
-        <p>you may close.</p>
+        <p>You are the grey cube</p>
+        <p>Avoid the spikes and get to the green thing</p>
+        <p>You have 0.5 seconds of invincibility at the beginning of each stage</p>
+        <p>(There are 13 stages)</p>
+        <p>Use your invincibility wisely</p>
+        <p>Arrows or WASD to move</p>
+        <p>When dead click the red text to revive</p>
+        <p>You may close.</p>
       </div>
 
       <script>
@@ -174,7 +174,7 @@
         let spikes = [];
 
         let level = 1;
-        const maxLevel = 13;
+        const maxLevel = 15;
 
         function isValidSpikePosition(position) {
             const distanceToPlayer = player.position.distanceTo(position);
