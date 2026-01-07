@@ -387,13 +387,14 @@ function createSpikesForLevel() {
    PLAYER SPAWN
 ============================================================ */
 function resetPlayerPosition() {
-    player.position.set(
-        Math.random() * 6 - 3,
-        0.25,
-        Math.random() * 6 - 3
-    );
+    // Always spawn in the center of the safe zone
+    player.position.set(0, 0.25, 0);
+
+    // Reset movement
     velocity.set(0, 0, 0);
 }
+
+
 
 /* ============================================================
    LEVEL RESET
@@ -999,3 +1000,4 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
