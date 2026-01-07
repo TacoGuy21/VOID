@@ -142,60 +142,7 @@
         <p>Click the red text to revive when dead</p>
         <p>You may close.</p>
     </div>
-<script>
-// --- Stationary Safe Spawn Zone (far away, no light) ---
 
-// Radius of the protected spawn bubble
-const SAFE_RADIUS = 1.2;
-
-// Where the safe zone lives (far from the main arena)
-const SAFE_ZONE_POS = new THREE.Vector3(-12, 0, 0);
-
-// Visual ring on the ground
-const ringGeometry = new THREE.RingGeometry(SAFE_RADIUS - 0.05, SAFE_RADIUS, 32);
-const ringMaterial = new THREE.MeshBasicMaterial({
-    color: 0x66aaff,
-    opacity: 0.35,
-    transparent: true,
-    side: THREE.DoubleSide
-});
-const safeRing = new THREE.Mesh(ringGeometry, ringMaterial);
-safeRing.rotation.x = -Math.PI / 2;
-safeRing.position.set(SAFE_ZONE_POS.x, 0.01, SAFE_ZONE_POS.z);
-scene.add(safeRing);
-
-// Player always spawns inside the safe zone
-function resetPlayerPosition() {
-    // Spawn anywhere inside the safe zone
-    const angle = Math.random() * Math.PI * 2;
-    const radius = Math.random() * (SAFE_RADIUS - 0.2);
-
-    const x = SAFE_ZONE_POS.x + Math.cos(angle) * radius;
-    const z = SAFE_ZONE_POS.z + Math.sin(angle) * radius;
-
-    player.position.set(x, 0.25, z);
-    velocity.set(0, 0, 0);
-}
-
-// Spikes must avoid the safe zone when spawning
-function isValidSpikePosition(position) {
-    const distToSafe = position.distanceTo(SAFE_ZONE_POS);
-    const distToTarget = target.position.distanceTo(position);
-
-    return (
-        distToSafe > SAFE_RADIUS + 0.8 &&
-        distToTarget > 1.5
-    );
-}
-
-// Spikes must avoid the safe zone while moving
-function avoidSafeZoneDuringMovement(spike, moveDir) {
-    const dist = spike.position.distanceTo(SAFE_ZONE_POS);
-    if (dist < SAFE_RADIUS + 0.4) {
-        moveDir.multiplyScalar(-1);
-    }
-}
-</script>
 
     <!-- Level intro text -->
     <div id="levelIntro">LEVEL 1</div>
@@ -603,6 +550,7 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
 
 
 
