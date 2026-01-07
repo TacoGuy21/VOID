@@ -36,7 +36,7 @@
             });
         });
     </script>
-             <audio id="boys-audio" src="boys.mp3" loop></audio>
+
        <meta property="og:title" content="VOID">
 <meta property="og:description" content="A 3D web experience by Tacoguy21">
 <meta property="og:image" content="Spaceship.png">
@@ -74,7 +74,18 @@
       </style>
       </head>
       <body>
-      
+
+<!-- HUD ADDED HERE -->
+<div id="hud" style="
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 22px;
+    color: white;
+    font-family: monospace;">
+    Level: 1 | Points: 0
+</div>
+
       <div class="fake-popup" id="popup">
         <span class="close-btn" onclick="hidePopup()">X</span>
         <h2>Important Message</h2>
@@ -100,16 +111,16 @@
           popup.style.top = topPos + 'px';
           popup.style.display = 'block';
         }
-      
+
         function hidePopup() {
           var popup = document.getElementById('popup');
           popup.style.display = 'none';
         }
-      
+
         window.onload = showPopup;
       </script>
 
-  
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOID</title>
@@ -142,11 +153,12 @@
     </style>
 </head>
 <body>
-   
+
     <div id="message" style="cursor: pointer;" onclick="location.reload();">failed.</div>
     <div id="completeMessage">complete.</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
 
@@ -177,6 +189,14 @@
         let level = 1;
         const maxLevel = 15;
 
+        let points = 0;
+        let levelStartTime = 0;
+
+        function updateHUD() {
+            document.getElementById("hud").textContent =
+                `Level: ${level} | Points: ${points}`;
+        }
+
         function isValidSpikePosition(position) {
             const distanceToPlayer = player.position.distanceTo(position);
             return distanceToPlayer > 1.0;
@@ -189,7 +209,7 @@
             spikes.forEach(spike => scene.remove(spike));
             spikes = [];
 
-            const spikeCount = 1 + (level - 1) * 1;
+            const spikeCount = 1 + (level - 1);
             for (let i = 0; i < spikeCount; i++) {
                 let spikePosition;
                 do {
@@ -200,18 +220,21 @@
                 const spikeMaterial = new THREE.MeshPhongMaterial({ color: 0xAE4305});
                 const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
                 spike.position.copy(spikePosition);
-                spike.rotation.x = 0; 
+                spike.rotation.x = 0;
                 spikes.push(spike);
                 scene.add(spike);
             }
 
-            
             player.position.set(Math.random() * 6 - 3, 0.25, Math.random() * 6 - 3);
 
             invincible = true;
             invincibleTimeout = setTimeout(() => {
                 invincible = false;
             }, 500);
+
+            levelStartTime = performance.now();
+
+            updateHUD();
         }
 
         resetLevel();
@@ -243,7 +266,13 @@
             });
 
             if (player.position.distanceTo(target.position) < 0.5) {
+
+                const timeTaken = performance.now() - levelStartTime;
+                const earned = Math.max(0, Math.floor(5000 / timeTaken));
+                points += earned;
+
                 level++;
+
                 if (level > maxLevel) {
                     document.getElementById('completeMessage').style.display = 'block';
                     renderer.domElement.style.display = 'none';
