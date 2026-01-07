@@ -152,15 +152,11 @@
     <div id="completeMessage">complete.</div>
 
     <script>
-    function showPopup() {
-        var popup = document.getElementById('popup');
-        var bodyRect = document.body.getBoundingClientRect();
-        var leftPos = bodyRect.width / 2 + (Math.random() - 0.5) * (bodyRect.width / 4);
-        var topPos = bodyRect.height / 2 + (Math.random() - 0.5) * (bodyRect.height / 4);
-        popup.style.left = leftPos + 'px';
-        popup.style.top = topPos + 'px';
-        popup.style.display = 'block';
-    }
+   function showPopup() {
+    const popup = document.getElementById('popup');
+    popup.style.display = 'block';
+}
+
     function hidePopup() {
         document.getElementById('popup').style.display = 'none';
     }
@@ -554,5 +550,6 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
 
 
