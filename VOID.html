@@ -404,6 +404,19 @@ function showLevelIntro() {
     levelIntro.style.display = "block";
     setTimeout(() => levelIntro.style.display = "none", 500);
 }
+function randomizeTargetPosition() {
+    // Target must be outside the safe zone but inside the arena
+    const minDist = SAFE_RADIUS + 4;   // far enough to be meaningful
+    const maxDist = ARENA_LIMIT - 2;   // not too close to walls
+
+    let angle = Math.random() * Math.PI * 2;
+    let dist = minDist + Math.random() * (maxDist - minDist);
+
+    const x = Math.cos(angle) * dist;
+    const z = Math.sin(angle) * dist;
+
+    target.position.set(x, 0.25, z);
+}
 
 function resetLevel() {
     createSpikesForLevel();
@@ -668,7 +681,7 @@ window.addEventListener("resize", () => {
             shininess: 100
         });
         const target = new THREE.Mesh(targetGeometry, targetMaterial);
-        target.position.set(0, 0.25, -2.5);
+randomizeTargetPosition();
         scene.add(target);
 
         let spikes = [];
@@ -1000,5 +1013,6 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
 
 
