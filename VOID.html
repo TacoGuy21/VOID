@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <link rel="icon" href="voidicon.png" type="image/png">
     <audio src="mary.mp3" autoplay loop></audio>
     <audio id="boys-audio" src="boys.mp3" loop></audio>
@@ -151,6 +152,451 @@
     <!-- Fail / complete messages -->
     <div id="message" onclick="location.reload();">failed.</div>
     <div id="completeMessage">complete.</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+    // --- Constants ---
+    const SAFE_RADIUS = 1.2;        // area around player kept clear
+    const ARENA_LIMIT = 7;          // bounds for player and spikes
+
+    // --- Scene setup ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    scene.fog = new THREE.FogExp2(0x000000, 0.08);
+
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+    camera.position.set(0, 4, 6);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.appendChild(renderer.domElement);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404060, 1.2);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    dirLight.position.set(4, 8, 6);
+    scene.add(dirLight);
+
+    // Grid floor
+    const gridHelper = new THREE.GridHelper(20, 20, 0x333333, 0x111111);
+    gridHelper.position.y = 0;
+    scene.add(gridHelper);
+
+    // Player
+    const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const playerMaterial = new THREE.MeshPhongMaterial({
+        color: 0xbbbbbb,
+        emissive: 0x222222,
+        shininess: 80
+    });
+    const player = new THREE.Mesh(playerGeometry, playerMaterial);
+    player.position.y = 0.25;
+    scene.add(player);
+
+    // Target
+    const targetGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const targetMaterial = new THREE.MeshPhongMaterial({
+        color: 0x66ff66,
+        emissive: 0x113311,
+        shininess: 100
+    });
+    const target = new THREE.Mesh(targetGeometry, targetMaterial);
+    target.position.set(0, 0.25, -2.5);
+    scene.add(target);
+
+    // Safe zone visualization (ring + light)
+    const ringGeometry = new THREE.RingGeometry(SAFE_RADIUS - 0.05, SAFE_RADIUS, 32);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0x66aaff,
+        opacity: 0.35,
+        transparent: true,
+        side: THREE.DoubleSide
+    });
+    const safeRing = new THREE.Mesh(ringGeometry, ringMaterial);
+    safeRing.rotation.x = -Math.PI / 2;
+    safeRing.position.y = 0.01;
+    scene.add(safeRing);
+
+    const safeLight = new THREE.PointLight(0x66aaff, 1.2, 3);
+    safeLight.position.set(0, 0.6, 0);
+    scene.add(safeLight);
+
+    let spikes = [];
+
+    // Game state
+    let level = 1;
+    const maxLevel = 50;
+
+    let points = 0;
+    let levelStartTime = 0;
+
+    let invincible = false;
+    let invincibleTimeout = null;
+
+    // Movement physics
+    const velocity = new THREE.Vector3(0, 0, 0);
+    const accel = 0.009;
+    const maxSpeed = 0.12;
+    const friction = 0.82;
+    let lastMoveDir = new THREE.Vector3(0, 0, -1);
+
+    // Dash
+    let dashCooldown = 0;
+    const dashCooldownTime = 1200;
+    const dashStrength = 0.22;
+
+    // Camera shake
+    let shakeTime = 0;
+    const shakeDuration = 200;
+    const shakeIntensity = 0.12;
+
+    const hud = document.getElementById('hud');
+    const levelIntro = document.getElementById('levelIntro');
+
+    function updateHUD() {
+        hud.textContent = `Level: ${level} | Points: ${points}`;
+    }
+
+    // Prevent spikes spawning on player or target (using SAFE_RADIUS)
+    function isValidSpikePosition(position) {
+        const distToPlayer = player.position.distanceTo(position);
+        const distToTarget = target.position.distanceTo(position);
+
+        return (
+            distToPlayer > SAFE_RADIUS + 0.8 && // clear area around player
+            distToTarget > 1.5
+        );
+    }
+
+    // Spike type progression every 5 levels
+    function getSpikeGeometryForLevel(level) {
+        if (level <= 5) return new THREE.ConeGeometry(0.22, 0.9, 24);
+        if (level <= 10) return new THREE.ConeGeometry(0.25, 1.3, 24);
+        if (level <= 15) return new THREE.ConeGeometry(0.35, 0.9, 24);
+        if (level <= 20) return new THREE.CylinderGeometry(0.22, 0.22, 1.2, 16);
+        if (level <= 25) return new THREE.ConeGeometry(0.3, 1.1, 4);
+        if (level <= 30) return new THREE.CylinderGeometry(0.18, 0.18, 0.8, 12);
+        if (level <= 35) return new THREE.BoxGeometry(0.25, 1.4, 0.25);
+        if (level <= 40) return new THREE.OctahedronGeometry(0.35);
+        if (level <= 45) return new THREE.BoxGeometry(0.15, 1.6, 0.15);
+        return new THREE.ConeGeometry(0.28, 1.4, 32);
+    }
+
+    function getSpikeMaterialForLevel(level) {
+        if (level <= 45) {
+            return new THREE.MeshPhongMaterial({
+                color: 0xAE4305,
+                emissive: 0x331000,
+                shininess: 60
+            });
+        }
+        return new THREE.MeshPhongMaterial({
+            color: 0xff4444,
+            emissive: 0x550000,
+            shininess: 120
+        });
+    }
+
+    // Difficulty curve for spike count
+    function getSpikeCountForLevel(level) {
+        let spikeCount;
+        if (level <= 10) {
+            spikeCount = 3 + Math.floor(level * 0.5);
+        } else if (level <= 20) {
+            spikeCount = 8 + Math.floor((level - 10) * 0.7);
+        } else if (level <= 35) {
+            spikeCount = 15 + Math.floor((level - 20) * 0.6);
+        } else {
+            spikeCount = 24 + Math.floor((level - 35) * 0.5);
+        }
+        return Math.min(spikeCount, 32);
+    }
+
+    // Always-moving spikes, reasonable motion
+    function createSpikesForLevel() {
+        spikes.forEach(s => scene.remove(s.mesh));
+        spikes = [];
+
+        const spikeCount = getSpikeCountForLevel(level);
+
+        for (let i = 0; i < spikeCount; i++) {
+            let spikePosition;
+            let attempts = 0;
+
+            do {
+                spikePosition = new THREE.Vector3(
+                    Math.random() * 10 - 5,
+                    0.5,
+                    Math.random() * 10 - 5
+                );
+                attempts++;
+                if (attempts > 100) break; // escape hatch
+            } while (!isValidSpikePosition(spikePosition));
+
+            const geometry = getSpikeGeometryForLevel(level);
+            const material = getSpikeMaterialForLevel(level);
+
+            const spike = new THREE.Mesh(geometry, material);
+            spike.position.copy(spikePosition);
+            spike.rotation.x = 0;
+            scene.add(spike);
+
+            // Movement data: random direction, level-scaled but reasonable speed
+            const moveDir = new THREE.Vector3(
+                (Math.random() - 0.5),
+                0,
+                (Math.random() - 0.5)
+            ).normalize();
+
+            let baseSpeed = 0.0025;
+            baseSpeed += (level - 1) * 0.00012;   // gentle scaling
+            if (level > 35) baseSpeed += (level - 35) * 0.00015; // extra late-game spice
+            const moveSpeed = baseSpeed;
+
+            spikes.push({
+                mesh: spike,
+                moveDir,
+                moveSpeed
+            });
+        }
+    }
+
+    function resetPlayerPosition() {
+        player.position.set(
+            Math.random() * 6 - 3,
+            0.25,
+            Math.random() * 6 - 3
+        );
+        velocity.set(0, 0, 0);
+    }
+
+    function showLevelIntro() {
+        levelIntro.textContent = `LEVEL ${level}`;
+        levelIntro.style.display = 'block';
+        setTimeout(() => {
+            levelIntro.style.display = 'none';
+        }, 500);
+    }
+
+    function resetLevel() {
+        createSpikesForLevel();
+        resetPlayerPosition();
+
+        invincible = true;
+        if (invincibleTimeout) clearTimeout(invincibleTimeout);
+        invincibleTimeout = setTimeout(() => {
+            invincible = false;
+        }, 500);
+
+        levelStartTime = performance.now();
+        updateHUD();
+        showLevelIntro();
+    }
+
+    resetLevel();
+
+    // Controls
+    const keys = {
+        ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+        KeyW: false, KeyS: false, KeyA: false, KeyD: false,
+        Space: false
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (keys.hasOwnProperty(e.code)) {
+            keys[e.code] = true;
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (keys.hasOwnProperty(e.code)) {
+            keys[e.code] = false;
+            e.preventDefault();
+        }
+    });
+
+    function tryDash() {
+        const now = performance.now();
+        if (dashCooldown > now) return;
+        if (lastMoveDir.lengthSq() < 0.0001) return;
+
+        const dashVec = lastMoveDir.clone().normalize().multiplyScalar(dashStrength);
+        velocity.add(dashVec);
+        dashCooldown = now + dashCooldownTime;
+    }
+
+    function movePlayer(deltaMs) {
+        let inputX = 0;
+        let inputZ = 0;
+
+        if (keys.ArrowUp || keys.KeyW) inputZ -= 1;
+        if (keys.ArrowDown || keys.KeyS) inputZ += 1;
+        if (keys.ArrowLeft || keys.KeyA) inputX -= 1;
+        if (keys.ArrowRight || keys.KeyD) inputX += 1;
+
+        const inputVec = new THREE.Vector3(inputX, 0, inputZ);
+        if (inputVec.lengthSq() > 0) {
+            inputVec.normalize();
+            lastMoveDir.copy(inputVec);
+
+            velocity.x += inputVec.x * accel * deltaMs;
+            velocity.z += inputVec.z * accel * deltaMs;
+        }
+
+        velocity.multiplyScalar(Math.pow(friction, deltaMs / 16.67));
+
+        const speedSq = velocity.lengthSq();
+        if (speedSq > maxSpeed * maxSpeed) {
+            velocity.multiplyScalar(maxSpeed / Math.sqrt(speedSq));
+        }
+
+        player.position.add(velocity);
+
+        player.position.x = Math.max(-ARENA_LIMIT, Math.min(ARENA_LIMIT, player.position.x));
+        player.position.z = Math.max(-ARENA_LIMIT, Math.min(ARENA_LIMIT, player.position.z));
+
+        if (keys.Space) {
+            tryDash();
+            keys.Space = false;
+        }
+
+        // Safe zone visuals follow player
+        safeRing.position.set(player.position.x, 0.01, player.position.z);
+        safeLight.position.set(player.position.x, player.position.y + 0.6, player.position.z);
+    }
+
+    // Always-moving spikes
+    function updateSpikeMovement(deltaMs) {
+        for (const s of spikes) {
+            const spike = s.mesh;
+
+            // Proposed movement
+            const dx = s.moveDir.x * s.moveSpeed * deltaMs;
+            const dz = s.moveDir.z * s.moveSpeed * deltaMs;
+
+            const nextX = spike.position.x + dx;
+            const nextZ = spike.position.z + dz;
+
+            // Bounce off arena edges
+            if (nextX < -ARENA_LIMIT || nextX > ARENA_LIMIT) {
+                s.moveDir.x *= -1;
+            }
+            if (nextZ < -ARENA_LIMIT || nextZ > ARENA_LIMIT) {
+                s.moveDir.z *= -1;
+            }
+
+            // Recompute after potential bounce
+            const finalDx = s.moveDir.x * s.moveSpeed * deltaMs;
+            const finalDz = s.moveDir.z * s.moveSpeed * deltaMs;
+
+            const candidatePos = new THREE.Vector3(
+                spike.position.x + finalDx,
+                spike.position.y,
+                spike.position.z + finalDz
+            );
+
+            // Avoid entering safe radius: if step would go inside, flip direction
+            const distToPlayer = candidatePos.distanceTo(player.position);
+            if (distToPlayer < SAFE_RADIUS) {
+                s.moveDir.multiplyScalar(-1);
+            } else {
+                spike.position.copy(candidatePos);
+            }
+        }
+    }
+
+    const baseCameraOffset = new THREE.Vector3(0, 4, 6);
+
+    function updateCamera(deltaMs) {
+        const desiredPosition = new THREE.Vector3(
+            player.position.x + baseCameraOffset.x,
+            player.position.y + baseCameraOffset.y,
+            player.position.z + baseCameraOffset.z
+        );
+
+        camera.position.lerp(desiredPosition, 0.1);
+
+        const tiltMax = 0.18;
+        const tiltX = THREE.MathUtils.clamp(-velocity.z * 4, -tiltMax, tiltMax);
+        const tiltZ = THREE.MathUtils.clamp(velocity.x * 4, -tiltMax, tiltMax);
+
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, tiltX, 0.15);
+        camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, tiltZ, 0.15);
+
+        let shakeOffset = new THREE.Vector3(0, 0, 0);
+        if (shakeTime > 0) {
+            const t = shakeTime / shakeDuration;
+            const intensity = shakeIntensity * t;
+            shakeOffset.set(
+                (Math.random() - 0.5) * intensity,
+                (Math.random() - 0.5) * intensity,
+                (Math.random() - 0.5) * intensity
+            );
+            shakeTime -= deltaMs;
+        }
+
+        camera.position.add(shakeOffset);
+        camera.lookAt(player.position);
+    }
+
+    let lastTime = performance.now();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const now = performance.now();
+        const deltaMs = now - lastTime;
+        lastTime = now;
+
+        movePlayer(deltaMs);
+        updateSpikeMovement(deltaMs);
+
+        // Collision with spikes
+        for (const s of spikes) {
+            const spike = s.mesh;
+            if (player.position.distanceTo(spike.position) < 0.5 && !invincible) {
+                shakeTime = shakeDuration;
+                document.getElementById('message').style.display = 'block';
+                renderer.domElement.style.display = 'none';
+                return;
+            }
+        }
+
+        // Reach target
+        if (player.position.distanceTo(target.position) < 0.5) {
+            const timeTaken = performance.now() - levelStartTime;
+            const earned = Math.max(0, Math.floor(5000 / timeTaken));
+            points += earned;
+
+            level++;
+            if (level > maxLevel) {
+                document.getElementById('completeMessage').style.display = 'block';
+                renderer.domElement.style.display = 'none';
+            } else {
+                resetLevel();
+            }
+        }
+
+        updateCamera(deltaMs);
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
 
     <script>
     function showPopup() {
@@ -555,4 +1001,5 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
 
