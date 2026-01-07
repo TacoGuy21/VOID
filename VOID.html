@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <link rel="icon" href="voidicon.png" type="image/png">
     <audio src="mary.mp3" autoplay loop></audio>
     <audio id="boys-audio" src="boys.mp3" loop></audio>
@@ -46,6 +47,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOID</title>
+<script>
+// --- Target random spawn ---
+function randomizeTargetPosition() {
+    const minDist = SAFE_RADIUS + 4;      // far enough to be meaningful
+    const maxDist = ARENA_LIMIT - 2;      // not too close to walls
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist = minDist + Math.random() * (maxDist - minDist);
+
+    const x = Math.cos(angle) * dist;
+    const z = Math.sin(angle) * dist;
+
+    target.position.set(x, 0.25, z);
+
+    // Give the target a new movement direction each level
+    targetMoveDir.set(
+        Math.random() - 0.5,
+        0,
+        Math.random() - 0.5
+    ).normalize();
+}
+
+// --- Target movement variables ---
+const targetMoveDir = new THREE.Vector3(
+    Math.random() - 0.5,
+    0,
+    Math.random() - 0.5
+).normalize();
+
+let targetMoveSpeed = 0.002;
+
+// --- Update target speed each level ---
+function updateTargetSpeed() {
+    targetMoveSpeed = 0.002 + (level - 1) * 0.0001;
+    if (level > 35) targetMoveSpeed += (level - 35) * 0.00015;
+}
+
+// --- Target movement (same system as spikes) ---
+function updateTargetMovement(deltaMs) {
+    const dx = targetMoveDir.x * targetMoveSpeed * deltaMs;
+    const dz = targetMoveDir.z * targetMoveSpeed * deltaMs;
+
+    const next = new THREE.Vector3(
+        target.position.x + dx,
+        target.position.y,
+        target.position.z + dz
+    );
+
+    // Bounce off arena edges
+    if (next.x < -ARENA_LIMIT || next.x > ARENA_LIMIT) {
+        targetMoveDir.x *= -1;
+    }
+    if (next.z < -ARENA_LIMIT || next.z > ARENA_LIMIT) {
+        targetMoveDir.z *= -1;
+    }
+
+    // Recalculate after bounce
+    const finalPos = new THREE.Vector3(
+        target.position.x + targetMoveDir.x * targetMoveSpeed * deltaMs,
+        target.position.y,
+        target.position.z + targetMoveDir.z * targetMoveSpeed * deltaMs
+    );
+
+    // Avoid safe zone
+    if (finalPos.length() < SAFE_RADIUS + 0.5) {
+        targetMoveDir.multiplyScalar(-1);
+    } else {
+        target.position.copy(finalPos);
+    }
+}
+</script>
 
     <style>
         body {
@@ -1026,6 +1098,7 @@ function randomizeTargetPosition() {
     </script>
 </body>
 </html>
+
 
 
 
