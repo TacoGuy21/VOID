@@ -273,6 +273,26 @@
     );
 }
 
+function updateSpikeMovement(deltaMs) {
+    if (level <= 25) return; // no movement before level 26
+
+    for (const s of spikes) {
+        const spike = s.mesh;
+
+        // Move spike
+        spike.position.x += s.moveDir.x * s.moveSpeed * deltaMs;
+        spike.position.z += s.moveDir.z * s.moveSpeed * deltaMs;
+
+        // Bounce off arena edges
+        const limit = 7;
+        if (spike.position.x < -limit || spike.position.x > limit) {
+            s.moveDir.x *= -1;
+        }
+        if (spike.position.z < -limit || spike.position.z > limit) {
+            s.moveDir.z *= -1;
+        }
+    }
+}
 
         // Predictable spike patterns
 function createSpikesForLevel() {
@@ -349,6 +369,20 @@ function createSpikesForLevel() {
         spikes.push({ mesh: spike });
     }
 }
+// Movement data (inactive until level > 25)
+const moveDir = new THREE.Vector3(
+    (Math.random() - 0.5),
+    0,
+    (Math.random() - 0.5)
+).normalize();
+
+const moveSpeed = 0.002 + (level * 0.00015); // gradually increases
+
+spikes.push({
+    mesh: spike,
+    moveDir,
+    moveSpeed
+});
 
         function resetPlayerPosition() {
             player.position.set(
@@ -555,5 +589,6 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
 
 
