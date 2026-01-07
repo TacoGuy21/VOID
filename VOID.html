@@ -121,16 +121,6 @@
             display: none;
             z-index: 8;
         }
-
-        #flashOverlay {
-            position: fixed;
-            inset: 0;
-            background: white;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 9;
-            transition: opacity 0.15s linear;
-        }
     </style>
 </head>
 <body>
@@ -142,23 +132,21 @@
     <div class="fake-popup" id="popup">
         <span class="close-btn" onclick="hidePopup()">X</span>
         <h2>Important Message</h2>
+
         <p>You are the grey cube</p>
-        <p>Avoid the spikes and get to the green thing</p>
-        <p>You have 0.5 seconds of invincibility at the beginning of each stage</p>
-        <p>(There are 13 stages)</p>
-        <p>Use your invincibility wisely</p>
-        <p>Arrows or WASD to move</p>
+        <p>Avoid the spikes and reach the green cube</p>
+        <p>You have 0.5 seconds of invincibility at the start of each level</p>
+        <p>There are 13 levels</p>
+        <p>Use WASD or Arrow Keys to move</p>
         <p>Press SPACE to dash</p>
-        <p>When dead click the red text to revive</p>
-        <p>Remember to think outside the box</p>
+        <p>Spikes move in predictable patterns</p>
+        <p>They will never spawn on top of you</p>
+        <p>Click the red text to revive when dead</p>
         <p>You may close.</p>
     </div>
 
     <!-- Level intro text -->
     <div id="levelIntro">LEVEL 1</div>
-
-    <!-- Flash overlay for hits -->
-    <div id="flashOverlay"></div>
 
     <!-- Fail / complete messages -->
     <div id="message" onclick="location.reload();">failed.</div>
@@ -181,12 +169,11 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <script>
-        // --- Basic scene setup ---
+        // --- Scene setup ---
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
-
-        // Soft fog for atmosphere
         scene.fog = new THREE.FogExp2(0x000000, 0.08);
 
         const camera = new THREE.PerspectiveCamera(
@@ -202,21 +189,20 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
-        // Lighting: ambient + directional
+        // Lighting
         const ambientLight = new THREE.AmbientLight(0x404060, 1.2);
         scene.add(ambientLight);
 
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
         dirLight.position.set(4, 8, 6);
-        dirLight.castShadow = false;
         scene.add(dirLight);
 
-        // Floor grid
+        // Grid floor
         const gridHelper = new THREE.GridHelper(20, 20, 0x333333, 0x111111);
         gridHelper.position.y = 0;
         scene.add(gridHelper);
 
-        // --- Player & target ---
+        // Player
         const playerGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
         const playerMaterial = new THREE.MeshPhongMaterial({
             color: 0xbbbbbb,
@@ -227,6 +213,7 @@
         player.position.y = 0.25;
         scene.add(player);
 
+        // Target
         const targetGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
         const targetMaterial = new THREE.MeshPhongMaterial({
             color: 0x66ff66,
@@ -239,7 +226,7 @@
 
         let spikes = [];
 
-        // --- Game state ---
+        // Game state
         let level = 1;
         const maxLevel = 15;
 
@@ -249,37 +236,42 @@
         let invincible = false;
         let invincibleTimeout = null;
 
-        let canMove = false;       // level intro freeze
-        let dashCooldown = 0;      // ms
-        const dashCooldownTime = 1200;
-        const dashStrength = 0.22;
-
-        // Movement w/ acceleration
+        // Movement physics
         const velocity = new THREE.Vector3(0, 0, 0);
         const accel = 0.009;
         const maxSpeed = 0.12;
         const friction = 0.82;
         let lastMoveDir = new THREE.Vector3(0, 0, -1);
 
-        // Screen shake
+        // Dash
+        let dashCooldown = 0;
+        const dashCooldownTime = 1200;
+        const dashStrength = 0.22;
+
+        // Camera shake
         let shakeTime = 0;
-        const shakeDuration = 200; // ms
+        const shakeDuration = 200;
         const shakeIntensity = 0.12;
 
-        // HUD & UI refs
         const hud = document.getElementById('hud');
         const levelIntro = document.getElementById('levelIntro');
-        const flashOverlay = document.getElementById('flashOverlay');
 
         function updateHUD() {
             hud.textContent = `Level: ${level} | Points: ${points}`;
         }
 
+        // Prevent spikes spawning on player or target
         function isValidSpikePosition(position) {
-            return player.position.distanceTo(position) > 1.0;
+            const distToPlayer = player.position.distanceTo(position);
+            const distToTarget = target.position.distanceTo(position);
+
+            return (
+                distToPlayer > 2.0 &&
+                distToTarget > 1.5
+            );
         }
 
-        // --- Spike creation w/ predictable patterns ---
+        // Predictable spike patterns
         function createSpikesForLevel() {
             spikes.forEach(s => scene.remove(s.mesh));
             spikes = [];
@@ -305,10 +297,12 @@
                 });
                 const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
                 spike.position.copy(spikePosition);
-                spike.rotation.x = Math.PI; // point up
+
+                // Flip spikes back to original orientation
+                spike.rotation.x = 0;
+
                 scene.add(spike);
 
-                // Decide type: static, sliding, rotating (predictable)
                 let type = 'static';
                 if (i % 4 === 1) type = 'slideX';
                 else if (i % 4 === 2) type = 'slideZ';
@@ -341,8 +335,7 @@
             levelIntro.style.display = 'block';
             setTimeout(() => {
                 levelIntro.style.display = 'none';
-                canMove = true;
-            }, 300);
+            }, 500);
         }
 
         function resetLevel() {
@@ -358,13 +351,12 @@
             levelStartTime = performance.now();
             updateHUD();
 
-            canMove = false;
             showLevelIntro();
         }
 
         resetLevel();
 
-        // --- Controls ---
+        // Controls
         const keys = {
             ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
             KeyW: false, KeyS: false, KeyA: false, KeyD: false,
@@ -385,9 +377,7 @@
             }
         });
 
-        // Dash trigger
         function tryDash() {
-            if (!canMove) return;
             const now = performance.now();
             if (dashCooldown > now) return;
 
@@ -398,10 +388,7 @@
             dashCooldown = now + dashCooldownTime;
         }
 
-        // --- Movement w/ acceleration ---
         function movePlayer(deltaMs) {
-            if (!canMove) return;
-
             let inputX = 0;
             let inputZ = 0;
 
@@ -419,32 +406,25 @@
                 velocity.z += inputVec.z * accel * deltaMs;
             }
 
-            // Friction
             velocity.multiplyScalar(Math.pow(friction, deltaMs / 16.67));
 
-            // Clamp speed
             const speedSq = velocity.lengthSq();
             if (speedSq > maxSpeed * maxSpeed) {
                 velocity.multiplyScalar(maxSpeed / Math.sqrt(speedSq));
             }
 
-            // Apply velocity
             player.position.add(velocity);
 
-            // Simple bounds
             const limit = 7;
             player.position.x = Math.max(-limit, Math.min(limit, player.position.x));
             player.position.z = Math.max(-limit, Math.min(limit, player.position.z));
 
-            // Dash on Space
             if (keys.Space) {
                 tryDash();
-                // prevent holding to spam checks; dash is still gated by cooldown
                 keys.Space = false;
             }
         }
 
-        // --- Spike update (predictable motion) ---
         function updateSpikes(deltaMs, elapsed) {
             for (const s of spikes) {
                 const mesh = s.mesh;
@@ -460,19 +440,6 @@
             }
         }
 
-        // --- Hit feedback ---
-        function triggerHitEffects() {
-            // Flash
-            flashOverlay.style.opacity = 0.8;
-            setTimeout(() => {
-                flashOverlay.style.opacity = 0;
-            }, 120);
-
-            // Screen shake
-            shakeTime = shakeDuration;
-        }
-
-        // --- Camera follow + tilt ---
         const baseCameraOffset = new THREE.Vector3(0, 4, 6);
 
         function updateCamera(deltaMs) {
@@ -484,7 +451,6 @@
 
             camera.position.lerp(desiredPosition, 0.1);
 
-            // Tilt based on velocity
             const tiltMax = 0.18;
             const tiltX = THREE.MathUtils.clamp(-velocity.z * 4, -tiltMax, tiltMax);
             const tiltZ = THREE.MathUtils.clamp(velocity.x * 4, -tiltMax, tiltMax);
@@ -492,7 +458,6 @@
             camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, tiltX, 0.15);
             camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, tiltZ, 0.15);
 
-            // Screen shake overlay on camera position
             let shakeOffset = new THREE.Vector3(0, 0, 0);
             if (shakeTime > 0) {
                 const t = shakeTime / shakeDuration;
@@ -522,18 +487,16 @@
             const elapsed = now * 0.001;
             updateSpikes(deltaMs, elapsed);
 
-            // Collision with spikes
             for (const s of spikes) {
                 const spike = s.mesh;
                 if (player.position.distanceTo(spike.position) < 0.5 && !invincible) {
-                    triggerHitEffects();
+                    shakeTime = shakeDuration;
                     document.getElementById('message').style.display = 'block';
                     renderer.domElement.style.display = 'none';
-                    return; // stop updating after death
+                    return;
                 }
             }
 
-            // Reach target
             if (player.position.distanceTo(target.position) < 0.5) {
                 const timeTaken = performance.now() - levelStartTime;
                 const earned = Math.max(0, Math.floor(5000 / timeTaken));
