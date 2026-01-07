@@ -172,6 +172,8 @@
 
     <script>
         // --- Scene setup ---
+        const SAFE_RADIUS = 1.2; // small, tight, always clear
+
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
         scene.fog = new THREE.FogExp2(0x000000, 0.08);
@@ -261,15 +263,16 @@
         }
 
         // Prevent spikes spawning on player or target
-        function isValidSpikePosition(position) {
-            const distToPlayer = player.position.distanceTo(position);
-            const distToTarget = target.position.distanceTo(position);
+       function isValidSpikePosition(position) {
+    const distToPlayer = player.position.distanceTo(position);
+    const distToTarget = target.position.distanceTo(position);
 
-            return (
-                distToPlayer > 2.0 &&
-                distToTarget > 1.5
-            );
-        }
+    return (
+        distToPlayer > SAFE_RADIUS + 0.8 &&   // guaranteed buffer
+        distToTarget > 1.5
+    );
+}
+
 
         // Predictable spike patterns
 function createSpikesForLevel() {
@@ -552,4 +555,5 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
 
