@@ -158,7 +158,7 @@
    CONSTANTS & GLOBALS
 ============================================================ */
 const SAFE_RADIUS = 1.2;
-const ARENA_LIMIT = 7;
+const ARENA_LIMIT = 12;
 
 /* ============================================================
    SCENE SETUP
@@ -221,7 +221,7 @@ const target = new THREE.Mesh(
         shininess: 100
     })
 );
-target.position.set(0, 0.25, -2.5);
+target.position.set(0, 0.25, -10);
 scene.add(target);
 
 /* ============================================================
@@ -349,11 +349,11 @@ function createSpikesForLevel() {
         let tries = 0;
 
         do {
-            pos = new THREE.Vector3(
-                Math.random() * 10 - 5,
-                0.5,
-                Math.random() * 10 - 5
-            );
+         pos = new THREE.Vector3(
+    Math.random() * 20 - 10,
+    0.5,
+    Math.random() * 20 - 10
+);
             tries++;
             if (tries > 100) break;
         } while (!isValidSpikePosition(pos));
@@ -1000,4 +1000,5 @@ function createSpikesForLevel() {
     </script>
 </body>
 </html>
+
 
